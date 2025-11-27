@@ -12,12 +12,19 @@ import Combine
 final class StartPriceFeedUseCase: UsecaseProtocol {
     private let repository: PriceRepositoryProtocol
     
+    var connectionStatus: AnyPublisher<Bool, Never> {
+        repository.connectionStatus
+    }
+    
+    var priceUpdates: AnyPublisher<PriceUpdate, Never> {
+        repository.priceUpdates
+    }
+    
     init(repository: PriceRepositoryProtocol) {
         self.repository = repository
     }
     
-    func execute() -> AnyPublisher<PriceUpdate, Never>{
+    func execute() {
         repository.connect()
-        return repository.priceUpdates
     }
 }
