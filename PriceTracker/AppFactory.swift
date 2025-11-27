@@ -15,11 +15,15 @@ struct AppFactory {
     /// Shared instance - both ViewModels subscribe to the same price updates
     static let priceFeedUseCase = PriceFeedUseCase(repository: priceRepository)
     
-    static func makeFeedViewModel() -> FeedViewModel {
-        return FeedViewModel(
-            fetchSymbolsUseCase: fetchSymbolsUseCase,
-            priceFeedUseCase: priceFeedUseCase
-        )
+    /// Shared FeedViewModel instance
+    static let feedViewModel = FeedViewModel(
+        fetchSymbolsUseCase: fetchSymbolsUseCase,
+        priceFeedUseCase: priceFeedUseCase
+    )
+    
+    /// Shared Router instance with symbol lookup
+    static let router = Router { symbolId in
+        feedViewModel.symbols.first { $0.symbol == symbolId }
     }
     
     static func makeSymbolDetailViewModel(initialSymbol: StockSymbol) -> SymbolDetailViewModel {

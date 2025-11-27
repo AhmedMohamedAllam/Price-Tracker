@@ -9,11 +9,15 @@ import SwiftUI
 
 @main
 struct PriceTrackerApp: App {
-    @StateObject private var viewModel = AppFactory.makeFeedViewModel()
+    private let router = AppFactory.router
     
     var body: some Scene {
         WindowGroup {
-            FeedView(viewModel: viewModel)
+            FeedView(viewModel: AppFactory.feedViewModel)
+                .environmentObject(router)
+                .onOpenURL { url in
+                    router.handleDeepLink(url: url)
+                }
         }
     }
 }

@@ -9,11 +9,19 @@ import SwiftUI
 
 struct FeedView: View {
     @ObservedObject var viewModel: FeedViewModel
+    @EnvironmentObject var router: Router
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.path) {
             List(viewModel.symbols) { symbol in
-                StockRowView(symbol: symbol)
+                NavigationLink(value: symbol) {
+                    StockRowView(symbol: symbol)
+                }
+            }
+            .navigationDestination(for: StockSymbol.self) { symbol in
+                SymbolDetailView(
+                    viewModel: AppFactory.makeSymbolDetailViewModel(initialSymbol: symbol)
+                )
             }
             .navigationTitle("Price Feed")
             .toolbar {
@@ -44,4 +52,3 @@ struct FeedView: View {
         }
     }
 }
-
