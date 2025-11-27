@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class StopPriceFeedUseCase {
+final class StopPriceFeedUseCase: UsecaseProtocol {
     private let repository: PriceRepositoryProtocol
     
     init(repository: PriceRepositoryProtocol) {

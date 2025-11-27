@@ -7,15 +7,17 @@
 
 
 import Foundation
+import Combine
 
-final class StartPriceFeedUseCase {
+final class StartPriceFeedUseCase: UsecaseProtocol {
     private let repository: PriceRepositoryProtocol
     
     init(repository: PriceRepositoryProtocol) {
         self.repository = repository
     }
     
-    func execute() {
+    func execute() -> AnyPublisher<PriceUpdate, Never>{
         repository.connect()
+        return repository.priceUpdates
     }
 }
