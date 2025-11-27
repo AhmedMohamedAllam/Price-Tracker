@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct PriceTrackerApp: App {
+    @StateObject private var viewModel = AppFactory.makeFeedViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            FeedView(viewModel: viewModel)
         }
     }
 }
