@@ -18,6 +18,7 @@ final class FeedViewModel: ObservableObject {
     private let priceFeedUseCase: PriceFeedUseCase
     
     private var cancellables = Set<AnyCancellable>()
+    private var priceUpdatesCancellable: AnyCancellable?
     
     init(fetchSymbolsUseCase: FetchSymbolsUseCase,
          priceFeedUseCase: PriceFeedUseCase) {
@@ -33,13 +34,17 @@ final class FeedViewModel: ObservableObject {
     }
     
     func startFeed() {
-        priceFeedUseCase.start { [weak self] update in
-            self?.updateSymbol(update)
-        }
+        priceUpdatesCancellable = priceFeedUseCase.priceUpdates
+            .sink { [weak self] update in
+                self?.updateSymbol(update)
+            }
+        priceFeedUseCase.start()
         isFeedRunning = true
     }
     
     func stopFeed() {
+        priceUpdatesCancellable?.cancel()
+        priceUpdatesCancellable = nil
         priceFeedUseCase.stop()
         isFeedRunning = false
     }

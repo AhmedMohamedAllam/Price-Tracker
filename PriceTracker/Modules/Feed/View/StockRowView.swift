@@ -55,9 +55,9 @@ struct StockRowView: View {
 
 #Preview {
     List {
-        StockRowView(symbol: StockSymbol(symbol: "AAPL", currentPrice: 150.25, previousPrice: 149.00))
-        StockRowView(symbol: StockSymbol(symbol: "GOOGL", currentPrice: 2800.50, previousPrice: 2850.00))
-        StockRowView(symbol: StockSymbol(symbol: "MSFT", currentPrice: 380.00, previousPrice: nil))
+        StockRowView(symbol: StockSymbol(symbol: "AAPL", description: "Apple Inc.", currentPrice: 150.25, previousPrice: 149.00))
+        StockRowView(symbol: StockSymbol(symbol: "GOOGL", description: "Alphabet Inc.", currentPrice: 2800.50, previousPrice: 2850.00))
+        StockRowView(symbol: StockSymbol(symbol: "MSFT", description: "Microsoft Corp.", currentPrice: 380.00, previousPrice: nil))
     }
 }
 
