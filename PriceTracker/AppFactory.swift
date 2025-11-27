@@ -7,18 +7,25 @@
 
 import Foundation
 
-// This is a Simualation instead of Factory SPM
+// This is a Simulation instead of Factory SPM
 struct AppFactory {
     private static let priceRepository = PriceRepositoryImpl()
+    private static let fetchSymbolsUseCase = FetchSymbolsUseCase(repository: priceRepository)
+    
+    /// Shared instance - both ViewModels subscribe to the same price updates
+    static let priceFeedUseCase = PriceFeedUseCase(repository: priceRepository)
     
     static func makeFeedViewModel() -> FeedViewModel {
-        let fetchSymbolsUseCase = FetchSymbolsUseCase(repository: priceRepository)
-        let priceFeedUseCase = PriceFeedUseCase(repository: priceRepository)
-        
         return FeedViewModel(
             fetchSymbolsUseCase: fetchSymbolsUseCase,
             priceFeedUseCase: priceFeedUseCase
         )
     }
+    
+    static func makeSymbolDetailViewModel(initialSymbol: StockSymbol) -> SymbolDetailViewModel {
+        return SymbolDetailViewModel(
+            initialSymbol: initialSymbol,
+            priceFeedUseCase: priceFeedUseCase
+        )
+    }
 }
-

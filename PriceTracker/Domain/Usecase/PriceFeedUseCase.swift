@@ -10,29 +10,27 @@ import Combine
 
 final class PriceFeedUseCase {
     private let repository: PriceRepositoryProtocol
-    private var priceUpdatesCancellable: AnyCancellable?
     
     var connectionStatus: AnyPublisher<Bool, Never> {
         repository.connectionStatus
+    }
+    
+    /// Publisher that multiple ViewModels can subscribe to
+    var priceUpdates: AnyPublisher<PriceUpdate, Never> {
+        repository.priceUpdates
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
     
     init(repository: PriceRepositoryProtocol) {
         self.repository = repository
     }
     
-    func start(onUpdate: @escaping (PriceUpdate) -> Void) {
-        priceUpdatesCancellable = repository.priceUpdates
-            .receive(on: DispatchQueue.main)
-            .sink { update in
-                onUpdate(update)
-            }
+    func start() {
         repository.connect()
     }
     
     func stop() {
-        priceUpdatesCancellable?.cancel()
-        priceUpdatesCancellable = nil
         repository.disconnect()
     }
 }
-
