@@ -11,27 +11,22 @@ struct StockRowView: View {
     let symbol: StockSymbol
     
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Text(symbol.symbol)
                 .font(.headline)
                 .fontWeight(.bold)
             
             Spacer()
             
-            Text(formattedPrice)
-                .font(.subheadline)
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .animation(.easeInOut(duration: 0.3), value: symbol.currentPrice)
+            FlashingPriceView(
+                price: symbol.currentPrice,
+                changeIndicator: symbol.changeIndicator
+            )
             
             changeIndicatorView
                 .animation(.easeInOut(duration: 0.3), value: symbol.changeIndicator)
         }
         .padding(.vertical, 4)
-    }
-    
-    private var formattedPrice: String {
-        String(format: "$%.2f", symbol.currentPrice)
     }
     
     @ViewBuilder

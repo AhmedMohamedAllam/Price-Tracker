@@ -23,19 +23,15 @@ struct SymbolDetailView: View {
     
     private var priceSection: some View {
         HStack(spacing: 12) {
-            Text(formattedPrice)
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .animation(.easeInOut(duration: 0.3), value: viewModel.symbol.currentPrice)
-            
+            FlashingPriceView(
+                price: viewModel.symbol.currentPrice,
+                changeIndicator: viewModel.symbol.changeIndicator,
+                font: .system(size: 48, weight: .bold, design: .rounded)
+            )
+
             changeIndicatorView
                 .animation(.easeInOut(duration: 0.3), value: viewModel.symbol.changeIndicator)
         }
-    }
-    
-    private var formattedPrice: String {
-        String(format: "$%.2f", viewModel.symbol.currentPrice)
     }
     
     @ViewBuilder
