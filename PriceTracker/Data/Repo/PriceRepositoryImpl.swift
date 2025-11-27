@@ -15,6 +15,7 @@ final class PriceRepositoryImpl {
 
     private let priceUpdatesSubject = PassthroughSubject<PriceUpdate, Never>()
     private var cancellables = Set<AnyCancellable>()
+    private var connectionCancellable: AnyCancellable?
     private var updateTimer: Timer?
     
     init(webSocketDataSource: WebSocketDataSourceProtocol = WebSocketDataSource(),
@@ -32,9 +33,13 @@ final class PriceRepositoryImpl {
     }
     
     private func sendUpdatesForAllSymbols() {
-        for symbol in symbolGenerator.symbols {
-            let update = priceGenerator.generatePriceUpdate(for: symbol)
-            sendPriceUpdate(update)
+        for (index, symbol) in symbolGenerator.symbols.enumerated() {
+            let delay = Double(index) * 0.1
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                guard let self else { return }
+                let update = self.priceGenerator.generatePriceUpdate(for: symbol)
+                self.sendPriceUpdate(update)
+            }
         }
     }
     
@@ -92,16 +97,28 @@ extension PriceRepositoryImpl: PriceRepositoryProtocol {
     func fetchSymbols() -> [StockSymbol] {
         symbolGenerator.symbols.map { symbol in
             let price = priceGenerator.generatePriceUpdate(for: symbol).price
-            return StockSymbol(symbol: symbol, currentPrice: price, previousPrice: nil)
+            // Generate a random previous price to show initial arrow direction
+            let randomPreviousPrice = Double.random(in: 10.0...500.0)
+            return StockSymbol(symbol: symbol, currentPrice: price, previousPrice: randomPreviousPrice)
         }
     }
 
     func connect() {
         webSocketDataSource.connect()
-        startSendingUpdates()
+        
+        // Wait for connection before sending updates
+        connectionCancellable = webSocketDataSource.connectionStatus
+            .filter { $0 == true }
+            .first()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.startSendingUpdates()
+            }
     }
 
     func disconnect() {
+        connectionCancellable?.cancel()
+        connectionCancellable = nil
         stopSendingUpdates()
         webSocketDataSource.disconnect()
     }
