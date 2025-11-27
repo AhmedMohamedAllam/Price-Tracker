@@ -57,24 +57,15 @@ final class FeedViewModel: ObservableObject {
         let old = symbols[index]
         symbols[index] = StockSymbol(
             symbol: update.symbol,
+            description: old.description,
             currentPrice: update.price,
             previousPrice: old.currentPrice
         )
     }
 
-    private func addSymbolPrice(_ update: PriceUpdate) {
-        symbols.append(StockSymbol(
-            symbol: update.symbol,
-            currentPrice: update.price,
-            previousPrice: nil
-        ))
-    }
-
     private func updateSymbol(_ update: PriceUpdate) {
         if let index = symbols.firstIndex(where: { $0.symbol == update.symbol }) {
             updateSymbolPrice(index, update)
-        } else {
-            addSymbolPrice(update)
         }
         symbols.sort(by: >)
     }
