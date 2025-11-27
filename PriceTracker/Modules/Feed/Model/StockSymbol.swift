@@ -10,6 +10,7 @@ import Foundation
 struct StockSymbol: Identifiable, Hashable, Comparable {
     var id: String { symbol }
     let symbol: String
+    let description: String
     let currentPrice: Double
     let previousPrice: Double?
     

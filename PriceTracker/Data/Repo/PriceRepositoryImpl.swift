@@ -97,9 +97,15 @@ extension PriceRepositoryImpl: PriceRepositoryProtocol {
     func fetchSymbols() -> [StockSymbol] {
         symbolGenerator.symbols.map { symbol in
             let price = priceGenerator.generatePriceUpdate(for: symbol).price
+            let description = symbolGenerator.description(for: symbol)
             // Generate a random previous price to show initial arrow direction
             let randomPreviousPrice = Double.random(in: 10.0...500.0)
-            return StockSymbol(symbol: symbol, currentPrice: price, previousPrice: randomPreviousPrice)
+            return StockSymbol(
+                symbol: symbol,
+                description: description,
+                currentPrice: price,
+                previousPrice: randomPreviousPrice
+            )
         }
     }
 
