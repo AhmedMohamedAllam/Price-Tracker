@@ -89,6 +89,13 @@ extension PriceRepositoryImpl: PriceRepositoryProtocol {
         webSocketDataSource.connectionStatus
     }
 
+    func fetchSymbols() -> [StockSymbol] {
+        symbolGenerator.symbols.map { symbol in
+            let price = priceGenerator.generatePriceUpdate(for: symbol).price
+            return StockSymbol(symbol: symbol, currentPrice: price, previousPrice: nil)
+        }
+    }
+
     func connect() {
         webSocketDataSource.connect()
         startSendingUpdates()

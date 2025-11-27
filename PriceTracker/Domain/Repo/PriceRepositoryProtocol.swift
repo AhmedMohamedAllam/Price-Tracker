@@ -11,6 +11,7 @@ import Combine
 protocol PriceRepositoryProtocol {
     var priceUpdates: AnyPublisher<PriceUpdate, Never> { get }
     var connectionStatus: AnyPublisher<Bool, Never> { get }
+    func fetchSymbols() -> [StockSymbol]
     func connect()
     func disconnect()
 }
