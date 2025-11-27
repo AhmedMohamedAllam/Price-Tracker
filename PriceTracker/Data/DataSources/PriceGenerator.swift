@@ -8,12 +8,10 @@
 import Foundation
 
 class PriceGenerator {
-    static let shared = PriceGenerator()
-    
     private let minPrice: Double = 10.0
     private let maxPrice: Double = 500.0
     
-    private init() {}
+    init() {}
     
     func generateRandomPrice() -> Double {
         return Double.random(in: minPrice...maxPrice)
