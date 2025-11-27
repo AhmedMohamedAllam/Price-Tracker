@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct StockSymbol: Identifiable {
-    let id = UUID()
+struct StockSymbol: Identifiable, Hashable, Comparable {
+    var id: String { symbol }
     let symbol: String
     let currentPrice: Double
     let previousPrice: Double?
@@ -21,4 +21,9 @@ struct StockSymbol: Identifiable {
     enum ChangeIndicator {
         case up, down, none
     }
+
+    static func < (lhs: StockSymbol, rhs: StockSymbol) -> Bool {
+        return lhs.currentPrice < rhs.currentPrice
+    }
+
 }
