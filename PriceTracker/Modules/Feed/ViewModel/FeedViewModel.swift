@@ -50,7 +50,7 @@ final class FeedViewModel: ObservableObject {
     }
     
     private func setupObservers() {
-        priceFeedUseCase.connectionStatus
+        priceFeedUseCase.stream
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 self?.isConnected = status

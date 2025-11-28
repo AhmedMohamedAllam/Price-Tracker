@@ -8,10 +8,11 @@
 import Foundation
 import Combine
 
-final class PriceFeedUseCase {
+final class PriceFeedUseCase: StreamingUsecaseProtocol {
+
     private let repository: PriceRepositoryProtocol
     
-    var connectionStatus: AnyPublisher<Bool, Never> {
+    var stream: AnyPublisher<Bool, Never> {
         repository.connectionStatus
     }
     

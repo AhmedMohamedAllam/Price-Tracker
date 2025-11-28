@@ -28,3 +28,4 @@ struct StockSymbol: Identifiable, Hashable, Comparable {
     }
 
 }
+
