@@ -1,0 +1,72 @@
+# ===== Markdown Files =====
+# Ignore all markdown files
+*.md
+
+# But keep README.md
+!README.md
+
+# ===== Xcode =====
+## Build generated
+build/
+DerivedData/
+
+## Various settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+## Other
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+## Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/*.xctestplan
+
+# ===== Swift Package Manager =====
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+
+# ===== CocoaPods =====
+Pods/
+*.xcworkspace
+
+# ===== Carthage =====
+Carthage/Build/
+
+# ===== fastlane =====
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ===== VS Code / Cursor =====
+.vscode/
+.cursor/
+
+# ===== Secrets =====
+*.pem
+*.p12
+*.key
+*.mobileprovision
+
