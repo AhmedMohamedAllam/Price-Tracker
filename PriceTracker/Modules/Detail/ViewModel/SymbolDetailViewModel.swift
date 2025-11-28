@@ -40,9 +40,5 @@ final class SymbolDetailViewModel: ObservableObject {
             previousPrice: symbol.currentPrice
         )
     }
-    
-    deinit {
-        cancellable?.cancel()
-    }
 }
 

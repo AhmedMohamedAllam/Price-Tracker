@@ -14,6 +14,8 @@ final class PriceRepositoryImpl {
     private let symbolGenerator: SymbolGenerator
 
     private let priceUpdatesSubject = PassthroughSubject<PriceUpdate, Never>()
+    private let errorsSubject = PassthroughSubject<PriceRepositoryError, Never>()
+    
     private var cancellables = Set<AnyCancellable>()
     private var connectionCancellable: AnyCancellable?
     private var updateTimer: Timer?
@@ -26,6 +28,7 @@ final class PriceRepositoryImpl {
         self.priceGenerator = priceGenerator
         self.symbolGenerator = symbolGenerator
         setupMessageReceiver()
+        setupConnectionMonitoring()
     }
 
     deinit {
@@ -51,7 +54,7 @@ final class PriceRepositoryImpl {
                 webSocketDataSource.send(jsonString)
             }
         } catch {
-            print("Failed to encode price update: \(error)")
+            errorsSubject.send(.encodingFailed)
         }
     }
     
@@ -59,12 +62,30 @@ final class PriceRepositoryImpl {
         let decoder = JSONDecoder()
 
         webSocketDataSource.receivedMessages
-            .compactMap {
-                guard let data = $0.data(using: .utf8) else { return nil }
-                return try? decoder.decode(PriceUpdate.self, from: data)
+            .compactMap { [weak self] message -> PriceUpdate? in
+                guard let data = message.data(using: .utf8) else {
+                    self?.errorsSubject.send(.decodingFailed)
+                    return nil
+                }
+                do {
+                    return try decoder.decode(PriceUpdate.self, from: data)
+                } catch {
+                    self?.errorsSubject.send(.decodingFailed)
+                    return nil
+                }
             }
             .sink { [weak self] update in
                 self?.priceUpdatesSubject.send(update)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func setupConnectionMonitoring() {
+        webSocketDataSource.connectionStatus
+            .dropFirst()
+            .filter { !$0 }
+            .sink { [weak self] _ in
+                self?.errorsSubject.send(.connectionLost)
             }
             .store(in: &cancellables)
     }
@@ -92,6 +113,10 @@ extension PriceRepositoryImpl: PriceRepositoryProtocol {
 
     var connectionStatus: AnyPublisher<Bool, Never> {
         webSocketDataSource.connectionStatus
+    }
+    
+    var errors: AnyPublisher<PriceRepositoryError, Never> {
+        errorsSubject.eraseToAnyPublisher()
     }
 
     func fetchSymbols() -> [StockSymbol] {

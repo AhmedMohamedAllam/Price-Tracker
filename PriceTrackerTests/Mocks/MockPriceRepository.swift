@@ -14,6 +14,7 @@ final class MockPriceRepository: PriceRepositoryProtocol {
     
     private let priceUpdatesSubject = PassthroughSubject<PriceUpdate, Never>()
     private let connectionStatusSubject = CurrentValueSubject<Bool, Never>(false)
+    private let errorsSubject = PassthroughSubject<PriceRepositoryError, Never>()
     
     var priceUpdates: AnyPublisher<PriceUpdate, Never> {
         priceUpdatesSubject.eraseToAnyPublisher()
@@ -21,6 +22,10 @@ final class MockPriceRepository: PriceRepositoryProtocol {
     
     var connectionStatus: AnyPublisher<Bool, Never> {
         connectionStatusSubject.eraseToAnyPublisher()
+    }
+    
+    var errors: AnyPublisher<PriceRepositoryError, Never> {
+        errorsSubject.eraseToAnyPublisher()
     }
     
     // MARK: - Configurable Data
@@ -54,5 +59,9 @@ final class MockPriceRepository: PriceRepositoryProtocol {
     
     func simulateConnectionStatus(_ isConnected: Bool) {
         connectionStatusSubject.send(isConnected)
+    }
+    
+    func simulateError(_ error: PriceRepositoryError) {
+        errorsSubject.send(error)
     }
 }
