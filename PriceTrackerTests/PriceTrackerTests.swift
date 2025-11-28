@@ -6,30 +6,67 @@
 //
 
 import XCTest
+@testable import PriceTracker
 
-final class PriceTrackerTests: XCTestCase {
+// MARK: - Model Tests
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+@MainActor
+final class StockSymbolTests: XCTestCase {
+    
+    func test_changeIndicator_returnsUp_whenPriceIncreased() {
+        let symbol = StockSymbol(
+            symbol: "AAPL",
+            description: "Apple",
+            currentPrice: 150.0,
+            previousPrice: 140.0
+        )
+        
+        XCTAssertEqual(symbol.changeIndicator, .up)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    func test_changeIndicator_returnsDown_whenPriceDecreased() {
+        let symbol = StockSymbol(
+            symbol: "AAPL",
+            description: "Apple",
+            currentPrice: 130.0,
+            previousPrice: 140.0
+        )
+        
+        XCTAssertEqual(symbol.changeIndicator, .down)
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    
+    func test_changeIndicator_returnsNone_whenPriceUnchanged() {
+        let symbol = StockSymbol(
+            symbol: "AAPL",
+            description: "Apple",
+            currentPrice: 140.0,
+            previousPrice: 140.0
+        )
+        
+        XCTAssertEqual(symbol.changeIndicator, .none)
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
-        }
+    
+    func test_changeIndicator_returnsNone_whenNoPreviousPrice() {
+        let symbol = StockSymbol(
+            symbol: "AAPL",
+            description: "Apple",
+            currentPrice: 140.0,
+            previousPrice: nil
+        )
+        
+        XCTAssertEqual(symbol.changeIndicator, .none)
     }
-
+    
+    func test_comparable_sortsLowerPriceFirst() {
+        let lower = StockSymbol(symbol: "A", description: "", currentPrice: 100.0, previousPrice: nil)
+        let higher = StockSymbol(symbol: "B", description: "", currentPrice: 200.0, previousPrice: nil)
+        
+        XCTAssertTrue(lower < higher)
+    }
+    
+    func test_id_returnsSymbol() {
+        let symbol = StockSymbol(symbol: "AAPL", description: "Apple", currentPrice: 100.0, previousPrice: nil)
+        
+        XCTAssertEqual(symbol.id, "AAPL")
+    }
 }
