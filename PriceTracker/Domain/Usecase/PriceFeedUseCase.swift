@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-final class PriceFeedUseCase: StreamingUsecaseProtocol {
+final class PriceFeedUseCase: PriceFeedUseCaseProtocol {
 
     private let repository: PriceRepositoryProtocol
     

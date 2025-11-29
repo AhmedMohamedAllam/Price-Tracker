@@ -12,25 +12,22 @@ import Combine
 @MainActor
 final class FeedViewModelTests: XCTestCase {
     
-    private var mockRepository: MockPriceRepository!
-    private var fetchSymbolsUseCase: FetchSymbolsUseCase!
-    private var priceFeedUseCase: PriceFeedUseCase!
+    private var mockFetchSymbolsUseCase: MockFetchSymbolsUseCase!
+    private var mockPriceFeedUseCase: MockPriceFeedUseCase!
     private var sut: FeedViewModel!
     private var cancellables: Set<AnyCancellable>!
     
     override func setUp() {
         super.setUp()
-        mockRepository = MockPriceRepository()
-        fetchSymbolsUseCase = FetchSymbolsUseCase(repository: mockRepository)
-        priceFeedUseCase = PriceFeedUseCase(repository: mockRepository)
+        mockFetchSymbolsUseCase = MockFetchSymbolsUseCase()
+        mockPriceFeedUseCase = MockPriceFeedUseCase()
         cancellables = []
     }
     
     override func tearDown() {
         sut = nil
-        priceFeedUseCase = nil
-        fetchSymbolsUseCase = nil
-        mockRepository = nil
+        mockPriceFeedUseCase = nil
+        mockFetchSymbolsUseCase = nil
         cancellables = nil
         super.tearDown()
     }
@@ -39,8 +36,8 @@ final class FeedViewModelTests: XCTestCase {
     
     private func createSUT() {
         sut = FeedViewModel(
-            fetchSymbolsUseCase: fetchSymbolsUseCase,
-            priceFeedUseCase: priceFeedUseCase
+            fetchSymbolsUseCase: mockFetchSymbolsUseCase,
+            priceFeedUseCase: mockPriceFeedUseCase
         )
     }
     
@@ -61,13 +58,14 @@ final class FeedViewModelTests: XCTestCase {
             makeSymbol("AAPL", price: 150.0),
             makeSymbol("GOOG", price: 100.0)
         ]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         
         // When
         createSUT()
         
         // Then
         XCTAssertEqual(sut.symbols.count, 2)
+        XCTAssertEqual(mockFetchSymbolsUseCase.executeCallCount, 1)
     }
     
     func test_init_symbolsAreSortedByPriceDescending() {
@@ -77,7 +75,7 @@ final class FeedViewModelTests: XCTestCase {
             makeSymbol("GOOG", price: 300.0),
             makeSymbol("TSLA", price: 200.0)
         ]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         
         // When
         createSUT()
@@ -90,7 +88,7 @@ final class FeedViewModelTests: XCTestCase {
     
     func test_init_isFeedRunningIsFalse() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         
         // When
         createSUT()
@@ -101,7 +99,7 @@ final class FeedViewModelTests: XCTestCase {
     
     func test_init_isConnectedIsFalse() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         
         // When
         createSUT()
@@ -114,7 +112,7 @@ final class FeedViewModelTests: XCTestCase {
     
     func test_startFeed_setsIsFeedRunningToTrue() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
         
         // When
@@ -124,21 +122,21 @@ final class FeedViewModelTests: XCTestCase {
         XCTAssertTrue(sut.isFeedRunning)
     }
     
-    func test_startFeed_callsRepositoryConnect() {
+    func test_startFeed_callsUseCaseStart() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
         
         // When
         sut.startFeed()
         
         // Then
-        XCTAssertEqual(mockRepository.connectCallCount, 1)
+        XCTAssertEqual(mockPriceFeedUseCase.startCallCount, 1)
     }
     
     func test_stopFeed_setsIsFeedRunningToFalse() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
         sut.startFeed()
         
@@ -149,9 +147,9 @@ final class FeedViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isFeedRunning)
     }
     
-    func test_stopFeed_callsRepositoryDisconnect() {
+    func test_stopFeed_callsUseCaseStop() {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
         sut.startFeed()
         
@@ -159,7 +157,7 @@ final class FeedViewModelTests: XCTestCase {
         sut.stopFeed()
         
         // Then
-        XCTAssertEqual(mockRepository.disconnectCallCount, 1)
+        XCTAssertEqual(mockPriceFeedUseCase.stopCallCount, 1)
     }
     
     // MARK: - Price Update Tests
@@ -170,7 +168,7 @@ final class FeedViewModelTests: XCTestCase {
             makeSymbol("AAPL", price: 150.0),
             makeSymbol("GOOG", price: 100.0)
         ]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         createSUT()
         sut.startFeed()
         
@@ -186,7 +184,7 @@ final class FeedViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -197,7 +195,7 @@ final class FeedViewModelTests: XCTestCase {
     func test_priceUpdate_setsPreviousPrice() async {
         // Given
         let symbols = [makeSymbol("AAPL", price: 150.0)]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         createSUT()
         sut.startFeed()
         
@@ -213,7 +211,7 @@ final class FeedViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -228,7 +226,7 @@ final class FeedViewModelTests: XCTestCase {
             makeSymbol("GOOG", price: 200.0),
             makeSymbol("TSLA", price: 100.0)
         ]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         createSUT()
         sut.startFeed()
         
@@ -248,7 +246,7 @@ final class FeedViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When - TSLA price jumps to highest
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "TSLA", price: 500.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "TSLA", price: 500.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -259,13 +257,13 @@ final class FeedViewModelTests: XCTestCase {
     func test_priceUpdate_ignoredWhenFeedStopped() async {
         // Given
         let symbols = [makeSymbol("AAPL", price: 150.0)]
-        mockRepository.symbolsToReturn = symbols
+        mockFetchSymbolsUseCase.symbolsToReturn = symbols
         createSUT()
         
         // Don't start feed - feed is stopped by default
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Give some time for any potential update
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
@@ -279,7 +277,7 @@ final class FeedViewModelTests: XCTestCase {
     
     func test_connectionStatus_updatesIsConnected() async {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
         
         let expectation = XCTestExpectation(description: "Connection status updated")
@@ -294,7 +292,7 @@ final class FeedViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulateConnectionStatus(true)
+        mockPriceFeedUseCase.simulateConnectionStatus(true)
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -303,9 +301,9 @@ final class FeedViewModelTests: XCTestCase {
     
     func test_connectionStatus_updatesToDisconnected() async {
         // Given
-        mockRepository.symbolsToReturn = []
+        mockFetchSymbolsUseCase.symbolsToReturn = []
         createSUT()
-        mockRepository.simulateConnectionStatus(true)
+        mockPriceFeedUseCase.simulateConnectionStatus(true)
         
         // Wait for connected state
         try? await Task.sleep(nanoseconds: 50_000_000)
@@ -322,7 +320,7 @@ final class FeedViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulateConnectionStatus(false)
+        mockPriceFeedUseCase.simulateConnectionStatus(false)
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)

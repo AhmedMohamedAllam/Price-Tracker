@@ -31,20 +31,21 @@ struct StockRowView: View {
     
     @ViewBuilder
     private var changeIndicatorView: some View {
-        switch symbol.changeIndicator {
-        case .up:
-            Image(systemName: "arrow.up")
-                .foregroundStyle(.green)
-                .fontWeight(.bold)
-        case .down:
-            Image(systemName: "arrow.down")
-                .foregroundStyle(.red)
-                .fontWeight(.bold)
-        case .none:
-            Image(systemName: "arrow.up")
-                .fontWeight(.bold)
-                .opacity(0)
+        Group {
+            switch symbol.changeIndicator {
+            case .up:
+                Image(systemName: "arrow.up")
+                    .foregroundStyle(.green)
+                    .fontWeight(.bold)
+            case .down:
+                Image(systemName: "arrow.down")
+                    .foregroundStyle(.red)
+                    .fontWeight(.bold)
+            case .none:
+                EmptyView()
+            }
         }
+        .frame(width: 16, alignment: .center)
     }
 }
 

@@ -12,22 +12,19 @@ import Combine
 @MainActor
 final class SymbolDetailViewModelTests: XCTestCase {
     
-    private var mockRepository: MockPriceRepository!
-    private var priceFeedUseCase: PriceFeedUseCase!
+    private var mockPriceFeedUseCase: MockPriceFeedUseCase!
     private var sut: SymbolDetailViewModel!
     private var cancellables: Set<AnyCancellable>!
     
     override func setUp() {
         super.setUp()
-        mockRepository = MockPriceRepository()
-        priceFeedUseCase = PriceFeedUseCase(repository: mockRepository)
+        mockPriceFeedUseCase = MockPriceFeedUseCase()
         cancellables = []
     }
     
     override func tearDown() {
         sut = nil
-        priceFeedUseCase = nil
-        mockRepository = nil
+        mockPriceFeedUseCase = nil
         cancellables = nil
         super.tearDown()
     }
@@ -46,7 +43,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
     private func createSUT(with symbol: StockSymbol) {
         sut = SymbolDetailViewModel(
             initialSymbol: symbol,
-            priceFeedUseCase: priceFeedUseCase
+            priceFeedUseCase: mockPriceFeedUseCase
         )
     }
     
@@ -95,7 +92,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -119,7 +116,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -132,7 +129,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
         createSUT(with: initialSymbol)
         
         // When - send update for different symbol
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "GOOG", price: 500.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "GOOG", price: 500.0))
         
         // Give some time for any potential update
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
@@ -159,7 +156,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -183,7 +180,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "TSLA", price: 300.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "TSLA", price: 300.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -210,7 +207,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -234,7 +231,7 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 100.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 100.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -260,9 +257,9 @@ final class SymbolDetailViewModelTests: XCTestCase {
             .store(in: &cancellables)
         
         // When - multiple updates
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 300.0))
-        mockRepository.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 400.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 200.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 300.0))
+        mockPriceFeedUseCase.simulatePriceUpdate(PriceUpdate(symbol: "AAPL", price: 400.0))
         
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)

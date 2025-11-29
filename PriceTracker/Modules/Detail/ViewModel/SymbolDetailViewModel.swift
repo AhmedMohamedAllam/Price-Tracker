@@ -12,10 +12,10 @@ import Combine
 final class SymbolDetailViewModel: ObservableObject {
     @Published private(set) var symbol: StockSymbol
     
-    private let priceFeedUseCase: PriceFeedUseCase
+    private let priceFeedUseCase: any PriceFeedUseCaseProtocol
     private var cancellable: AnyCancellable?
     
-    init(initialSymbol: StockSymbol, priceFeedUseCase: PriceFeedUseCase) {
+    init(initialSymbol: StockSymbol, priceFeedUseCase: any PriceFeedUseCaseProtocol) {
         self.symbol = initialSymbol
         self.priceFeedUseCase = priceFeedUseCase
         

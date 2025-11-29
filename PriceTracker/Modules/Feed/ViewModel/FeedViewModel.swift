@@ -14,14 +14,14 @@ final class FeedViewModel: ObservableObject {
     @Published private(set) var isConnected: Bool = false
     @Published private(set) var isFeedRunning: Bool = false
     
-    private let fetchSymbolsUseCase: FetchSymbolsUseCase
-    private let priceFeedUseCase: PriceFeedUseCase
+    private let fetchSymbolsUseCase: any FetchSymbolsUseCaseProtocol
+    private let priceFeedUseCase: any PriceFeedUseCaseProtocol
     
     private var cancellables = Set<AnyCancellable>()
     private var priceUpdatesCancellable: AnyCancellable?
     
-    init(fetchSymbolsUseCase: FetchSymbolsUseCase,
-         priceFeedUseCase: PriceFeedUseCase) {
+    init(fetchSymbolsUseCase: any FetchSymbolsUseCaseProtocol,
+         priceFeedUseCase: any PriceFeedUseCaseProtocol) {
         self.fetchSymbolsUseCase = fetchSymbolsUseCase
         self.priceFeedUseCase = priceFeedUseCase
 

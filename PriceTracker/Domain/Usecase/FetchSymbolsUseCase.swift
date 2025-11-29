@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class FetchSymbolsUseCase: UsecaseProtocol {
+final class FetchSymbolsUseCase: FetchSymbolsUseCaseProtocol {
     private let repository: PriceRepositoryProtocol
     
     init(repository: PriceRepositoryProtocol) {
